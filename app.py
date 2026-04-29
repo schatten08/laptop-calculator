@@ -206,6 +206,42 @@ if st.button("Calculate Purchases", type="primary"):
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     )
     
+    # Экспорт в PDF
+    from reportlab.lib.pagesizes import letter, landscape
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet
+    
+    pdf_buffer = io.BytesIO()
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter))
+    elements = []
+    
+    styles = getSampleStyleSheet()
+    elements.append(Paragraph(f"Quarterly Purchase Plan (Total: {total_buy} pcs.)", styles['Title']))
+    elements.append(Spacer(1, 12))
+    
+    # Форматируем таблицу для PDF
+    pdf_data = [df.columns.values.tolist()] + df.values.tolist()
+    t = Table(pdf_data)
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+    elements.append(t)
+    doc.build(elements)
+    
+    st.download_button(
+        label="📥 Download Plan as PDF",
+        data=pdf_buffer.getvalue(),
+        file_name='laptop_purchase_plan.pdf',
+        mime='application/pdf',
+    )
+    
     # Кнопка для скачивания CSV (оставляем как запасной вариант)
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button(
