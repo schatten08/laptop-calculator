@@ -203,8 +203,7 @@ if st.button("Calculate Purchases", type="primary"):
             results.append({
                 "Location": loc,
                 "Model": model,
-                "Base Need": base_need_model,
-                "Need with Reserve": need_with_reserve,
+                "Total Need (incl. Reserve)": need_with_reserve,
                 "Stock Balance": stock,
                 "Quantity to Purchase": buy
             })
@@ -220,6 +219,7 @@ if st.button("Calculate Purchases", type="primary"):
     
     # Красивая метрика
     st.metric(label="Total Laptops to Purchase 💻", value=f"{total_buy} pcs.")
+    st.info(f"💡 The *Total Need* and final purchase quantity already include the **{reserve_percent}%** buffer reserve.")
     st.divider()
     
     # Кнопки экспорта
