@@ -193,10 +193,23 @@ if st.button("Calculate Purchases", type="primary"):
     
     st.success(f"Total number of laptops to purchase: **{total_buy} pcs.**")
     
-    # Кнопка для скачивания CSV (оставляем обычный плоский df для удобства Excel)
+    # Экспорт в Excel
+    import io
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Purchase Plan')
+    
+    st.download_button(
+        label="📥 Download Plan as Excel",
+        data=buffer.getvalue(),
+        file_name='laptop_purchase_plan.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    
+    # Кнопка для скачивания CSV (оставляем как запасной вариант)
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button(
-        label="Download Table as CSV (for Excel)",
+        label="📥 Download Table as CSV",
         data=csv,
         file_name='laptop_purchase_plan.csv',
         mime='text/csv',
