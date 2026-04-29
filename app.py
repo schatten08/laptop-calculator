@@ -36,10 +36,14 @@ default_df = pd.DataFrame(default_df_data)
 if "app_df" not in st.session_state:
     st.session_state.app_df = default_df.copy()
 
-st.header("1. Input Data")
+st.sidebar.header("⚙️ Configuration")
+input_mode = st.sidebar.radio("Choose Input Method:", ["Interactive Table (Paste from Excel)", "Upload CSV File", "Manual Forms"])
 
-# Выбор формата ввода
-input_mode = st.radio("Choose Input Method:", ["Interactive Table (Paste from Excel)", "Upload CSV File", "Manual Forms"])
+st.sidebar.header("📦 Buffer Reserve")
+reserve_percent = st.sidebar.slider("Additional Reserve (%) for Quarter Needs", min_value=0, max_value=30, value=10, step=1)
+st.sidebar.markdown("Provides a buffer in case of sudden breakages or unforeseen hiring.")
+
+st.header("1. Input Data")
 
 hiring_data = {}
 replacement_data = {}
@@ -134,9 +138,7 @@ else:
             st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, f"Past {model}"] = past_inputs[loc][j]
             st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, f"Stock {model}"] = stock_inputs[loc][j]
 
-st.header("2. Buffer Stock")
-reserve_percent = st.slider("Additional Reserve (%) for Quarter Needs", min_value=0, max_value=30, value=10, step=1)
-st.markdown("Provides a buffer in case of sudden breakages or unforeseen hiring.")
+st.header("2. Calculation & Results")
 
 if st.button("Calculate Purchases", type="primary"):
     results = []
@@ -184,29 +186,25 @@ if st.button("Calculate Purchases", type="primary"):
             
     df = pd.DataFrame(results)
     
-    st.header("Final Purchase Table")
+    st.header("Final Purchase Plan")
     
     # Визуальное группирование по городам для отображения на сайте
-    # Это объединит ячейки с названиями городов в визуальные блоки
     df_display = df.set_index(["Location", "Model"])
-    st.table(df_display)
+    st.dataframe(df_display, use_container_width=True)
     
-    st.success(f"Total number of laptops to purchase: **{total_buy} pcs.**")
+    # Красивая метрика
+    st.metric(label="Total Laptops to Purchase 💻", value=f"{total_buy} pcs.")
+    st.divider()
     
-    # Экспорт в Excel
+    # Кнопки экспорта
     import io
+    
+    # Excel
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Purchase Plan')
     
-    st.download_button(
-        label="📥 Download Plan as Excel",
-        data=buffer.getvalue(),
-        file_name='laptop_purchase_plan.xlsx',
-        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    )
-    
-    # Экспорт в PDF
+    # PDF
     from reportlab.lib.pagesizes import letter, landscape
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
     from reportlab.lib import colors
@@ -220,7 +218,6 @@ if st.button("Calculate Purchases", type="primary"):
     elements.append(Paragraph(f"Quarterly Purchase Plan (Total: {total_buy} pcs.)", styles['Title']))
     elements.append(Spacer(1, 12))
     
-    # Форматируем таблицу для PDF
     pdf_data = [df.columns.values.tolist()] + df.values.tolist()
     t = Table(pdf_data)
     t.setStyle(TableStyle([
@@ -235,18 +232,15 @@ if st.button("Calculate Purchases", type="primary"):
     elements.append(t)
     doc.build(elements)
     
-    st.download_button(
-        label="📥 Download Plan as PDF",
-        data=pdf_buffer.getvalue(),
-        file_name='laptop_purchase_plan.pdf',
-        mime='application/pdf',
-    )
-    
-    # Кнопка для скачивания CSV (оставляем как запасной вариант)
+    # CSV
     csv = df.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="📥 Download Table as CSV",
-        data=csv,
-        file_name='laptop_purchase_plan.csv',
-        mime='text/csv',
-    )
+    
+    # Располагаем три кнопки скачивания в ряд
+    st.markdown("### Export Results")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.download_button("📥 Excel (.xlsx)", data=buffer.getvalue(), file_name='laptop_plan.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
+    with col2:
+        st.download_button("📥 PDF Document", data=pdf_buffer.getvalue(), file_name='laptop_plan.pdf', mime='application/pdf', use_container_width=True)
+    with col3:
+        st.download_button("📥 CSV Data", data=csv, file_name='laptop_plan.csv', mime='text/csv', use_container_width=True)
