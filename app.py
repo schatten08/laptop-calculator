@@ -27,8 +27,8 @@ default_df_data = []
 for i, loc in enumerate(LOCATIONS):
     default_df_data.append({
         "Location": loc, "New Hires": default_hiring[i], "Replacements": default_replacements[i],
-        f"Past {MODELS[0]}": past_data[loc][0], f"Past {MODELS[1]}": past_data[loc][1], f"Past {MODELS[2]}": past_data[loc][2],
-        f"Stock {MODELS[0]}": stock_data[loc][0], f"Stock {MODELS[1]}": stock_data[loc][1], f"Stock {MODELS[2]}": stock_data[loc][2],
+        f"Past | {MODELS[0]}": past_data[loc][0], f"Past | {MODELS[1]}": past_data[loc][1], f"Past | {MODELS[2]}": past_data[loc][2],
+        f"Stock | {MODELS[0]}": stock_data[loc][0], f"Stock | {MODELS[1]}": stock_data[loc][1], f"Stock | {MODELS[2]}": stock_data[loc][2],
     })
 default_df = pd.DataFrame(default_df_data)
 
@@ -71,8 +71,8 @@ if input_mode == "Interactive Table (Paste from Excel)":
         if loc in LOCATIONS:
             hiring_data[loc] = int(row["New Hires"])
             replacement_data[loc] = int(row["Replacements"])
-            past_inputs[loc] = [int(row[f"Past {MODELS[0]}"]), int(row[f"Past {MODELS[1]}"]), int(row[f"Past {MODELS[2]}"])]
-            stock_inputs[loc] = [int(row[f"Stock {MODELS[0]}"]), int(row[f"Stock {MODELS[1]}"]), int(row[f"Stock {MODELS[2]}"])]
+            past_inputs[loc] = [int(row[f"Past | {MODELS[0]}"]), int(row[f"Past | {MODELS[1]}"]), int(row[f"Past | {MODELS[2]}"])]
+            stock_inputs[loc] = [int(row[f"Stock | {MODELS[0]}"]), int(row[f"Stock | {MODELS[1]}"]), int(row[f"Stock | {MODELS[2]}"])]
 
 elif input_mode == "Upload CSV File":
     st.markdown("Download the template, fill it in Excel, and upload it back here.")
@@ -96,8 +96,8 @@ elif input_mode == "Upload CSV File":
                     if loc in LOCATIONS:
                         hiring_data[loc] = int(row["New Hires"])
                         replacement_data[loc] = int(row["Replacements"])
-                        past_inputs[loc] = [int(row[f"Past {MODELS[0]}"]), int(row[f"Past {MODELS[1]}"]), int(row[f"Past {MODELS[2]}"])]
-                        stock_inputs[loc] = [int(row[f"Stock {MODELS[0]}"]), int(row[f"Stock {MODELS[1]}"]), int(row[f"Stock {MODELS[2]}"])]
+                        past_inputs[loc] = [int(row[f"Past | {MODELS[0]}"]), int(row[f"Past | {MODELS[1]}"]), int(row[f"Past | {MODELS[2]}"])]
+                        stock_inputs[loc] = [int(row[f"Stock | {MODELS[0]}"]), int(row[f"Stock | {MODELS[1]}"]), int(row[f"Stock | {MODELS[2]}"])]
         except Exception as e:
             st.error(f"Error reading file: {e}. Please ensure it matches the template.")
     else:
@@ -106,8 +106,8 @@ elif input_mode == "Upload CSV File":
         for _, row in st.session_state.app_df.iterrows():
             loc = row["Location"]
             hiring_data[loc], replacement_data[loc] = int(row["New Hires"]), int(row["Replacements"])
-            past_inputs[loc] = [int(row[f"Past {MODELS[0]}"]), int(row[f"Past {MODELS[1]}"]), int(row[f"Past {MODELS[2]}"])]
-            stock_inputs[loc] = [int(row[f"Stock {MODELS[0]}"]), int(row[f"Stock {MODELS[1]}"]), int(row[f"Stock {MODELS[2]}"])]
+            past_inputs[loc] = [int(row[f"Past | {MODELS[0]}"]), int(row[f"Past | {MODELS[1]}"]), int(row[f"Past | {MODELS[2]}"])]
+            stock_inputs[loc] = [int(row[f"Stock | {MODELS[0]}"]), int(row[f"Stock | {MODELS[1]}"]), int(row[f"Stock | {MODELS[2]}"])]
 
 else:
     # Исходный ручной ввод
@@ -126,7 +126,7 @@ else:
         saved_row = st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc]
         with cols_past[i]:
             for j, model in enumerate(MODELS):
-                val = st.number_input(f"{model} (Past {loc})", min_value=0, value=int(saved_row[f"Past {model}"].values[0]))
+                val = st.number_input(f"{model} (Past {loc})", min_value=0, value=int(saved_row[f"Past | {model}"].values[0]))
                 past_inputs[loc].append(val)
                 
     st.markdown("### Stock Balance")
@@ -135,7 +135,7 @@ else:
         saved_row = st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc]
         with cols_stock[i]:
             for j, model in enumerate(MODELS):
-                val = st.number_input(f"{model} (Stock {loc})", min_value=0, value=int(saved_row[f"Stock {model}"].values[0]))
+                val = st.number_input(f"{model} (Stock {loc})", min_value=0, value=int(saved_row[f"Stock | {model}"].values[0]))
                 stock_inputs[loc].append(val)
                 
     # Сохраняем новые цифры обратно в состояние
@@ -143,8 +143,8 @@ else:
         st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, "New Hires"] = hiring_data[loc]
         st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, "Replacements"] = replacement_data[loc]
         for j, model in enumerate(MODELS):
-            st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, f"Past {model}"] = past_inputs[loc][j]
-            st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, f"Stock {model}"] = stock_inputs[loc][j]
+            st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, f"Past | {model}"] = past_inputs[loc][j]
+            st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, f"Stock | {model}"] = stock_inputs[loc][j]
 
 st.header("2. Calculation & Results")
 
