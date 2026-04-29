@@ -32,8 +32,15 @@ for i, loc in enumerate(LOCATIONS):
     })
 default_df = pd.DataFrame(default_df_data)
 
-# Используем Session State для сохранения данных между вкладками
-if "app_df" not in st.session_state:
+APP_VERSION = "1.1" # 🚀 Меняйте эту цифру при каждом обновлении структуры колонок
+
+# Используем Session State для сохранения данных между вкладками с проверкой версии
+if "app_version" not in st.session_state or st.session_state.app_version != APP_VERSION:
+    st.session_state.clear() # Полностью уничтожаем закэшированные (старые) значения пользователя
+    st.session_state.app_version = APP_VERSION
+    st.session_state.app_df = default_df.copy()
+    st.toast("🔄 The app has been successfully updated to the latest version!", icon="🎉")
+elif "app_df" not in st.session_state:
     st.session_state.app_df = default_df.copy()
 
 st.sidebar.header("⚙️ Configuration")
