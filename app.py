@@ -4,6 +4,17 @@ import math
 
 st.set_page_config(page_title="Laptop Purchase Calculator", layout="wide")
 
+# --- Скрываем стандартный брендинг Streamlit (гамбургер-меню и подвал) ---
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            [data-testid="stToolbar"] {visibility: hidden !important;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 st.title("Laptop Purchase Calculator")
 
 # Константы локаций и моделей
