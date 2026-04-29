@@ -45,6 +45,14 @@ st.sidebar.markdown("Provides a buffer in case of sudden breakages or unforeseen
 
 st.header("1. Input Data")
 
+with st.expander("ℹ️ Column Definitions (How calculations work)"):
+    st.markdown("""
+    * **New Hires**: Planned number of new employees for the quarter.
+    * **Replacements**: Number of old or broken laptops that need to be replaced.
+    * **Past [Model]**: Number of laptops purchased in the *previous* quarter. This determines the **proportion (ratio)** of each model for the new purchases.
+    * **Stock [Model]**: Current available stock in the office. These items will be subtracted from the final purchase amount.
+    """)
+
 hiring_data = {}
 replacement_data = {}
 past_inputs = {loc: [] for loc in LOCATIONS}
