@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.4.0] - 2026-04-30
+### Added
+* **Developer Experience (DX)**: Implemented professional VS Code workspace settings in `.vscode/settings.json`, including structure auto-formatting on save, trailing space cleanup, bracket pair colorization, and basic Pylance type checking.
+
 ### Changed
 * **Interactive Table & Inputs**: Refactored the core application constants to natively sort locations alphabetically across all manual input forms and the interactive tables. Data arrays were converted to strict dictionary mappings to prevent indexing errors.
 * **Cache Busting**: Bumped `APP_VERSION` to `1.4` to seamlessly apply the new alphabetical sorting layout and clear outdated session configurations.
