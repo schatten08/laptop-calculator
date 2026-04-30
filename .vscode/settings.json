@@ -1,0 +1,21 @@
+{
+    "git.ignoreLimitWarning": true,
+    // --- Editor Display ---
+    "editor.minimap.enabled": false,
+    "editor.rulers": [
+        120
+    ],
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "editor.mouseWheelZoom": true,
+    // --- File Formatting & Hygiene ---
+    "editor.formatOnSave": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    // --- Python & Pylance Superpowers ---
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.autoFormatStrings": true
+}
