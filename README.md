@@ -33,6 +33,12 @@ A Streamlit-based web application designed to automate and calculate quarterly l
 3. **Past [Model]**: Historical purchases from the previous quarter. Used to calculate the percentage distribution ratio among different models.
 4. **Stock [Model]**: Current available stock. Subtracted from the final gross need to determine the actual purchase quantity.
 
+## Security & Data Privacy
+This tool is designed with corporate data security (GDPR/NDA compliance) in mind:
+* **No Persistent Storage**: Uploaded CSV files, manually entered numbers, and calculated results are processed entirely in-memory (RAM) during the active browser session. 
+* **Ephemeral Exports**: Downloadable Excel, PDF, and CSV files are generated dynamically on-the-fly using secure memory buffers (`io.BytesIO`). Files are **never written or saved to any server hard drive**.
+* **Stateless Architecture**: Streamlit automatically destroys the active session state and wipes all entered data immediately when the user closes the tab, refreshes, or the session times out. There is no back-end database harvesting company data.
+
 ## Technology Stack
 * [Streamlit](https://streamlit.io/) - Frontend application framework
 * [Pandas](https://pandas.pydata.org/) - Data manipulation and analysis
