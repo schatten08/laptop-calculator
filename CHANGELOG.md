@@ -5,6 +5,11 @@ All notable changes to the Laptop Purchase Calculator will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-04-30
+### Changed
+* **Interactive Table & Inputs**: Refactored the core application constants to natively sort locations alphabetically across all manual input forms and the interactive tables. Data arrays were converted to strict dictionary mappings to prevent indexing errors.
+* **Cache Busting**: Bumped `APP_VERSION` to `1.4` to seamlessly apply the new alphabetical sorting layout and clear outdated session configurations.
+
 ## [1.3.0] - 2026-04-30
 ### Added
 * **Custom Theming**: Added `.streamlit/config.toml` to force a professional Dark Mode UI baseline across all browsers, regardless of the user's OS settings. Replaced Streamlit's default red error-like highlight color with a calming corporate blue (`#1f77b4`).

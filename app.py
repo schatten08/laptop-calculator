@@ -22,12 +22,13 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.title("Laptop Purchase Calculator")
 
 # --- БАЗОВЫЕ КОНСТАНТЫ И ДЕФОЛТНЫЕ ДАННЫЕ ---
-LOCATIONS = ["Bishkek", "Astana", "Karaganda", "Almaty", "Tashkent"]
+# Сортируем локации по алфавиту для всех таблиц и форм
+LOCATIONS = sorted(["Bishkek", "Astana", "Karaganda", "Almaty", "Tashkent"])
 MODELS = ["Apple MacBook Pro 14", "HP EliteBook 8 G1i 16", "HP EliteBook 8 G1i 14"]
 
 # Стартовые значения для найма сотрудников и замены сломанных устройств
-default_hiring = [31, 100, 10, 35, 83]
-default_replacements = [20, 30, 7, 27, 30]
+default_hiring = {"Bishkek": 31, "Astana": 100, "Karaganda": 10, "Almaty": 35, "Tashkent": 83}
+default_replacements = {"Bishkek": 20, "Astana": 30, "Karaganda": 7, "Almaty": 27, "Tashkent": 30}
 
 # Доли для вычисления будущих закупок (история прошлого квартала)
 past_data = {
@@ -43,15 +44,15 @@ stock_data = {
 # Формируем матрицу (DataFrame) со всеми данными с аккуратными заголовками (разделитель "|")
 # Этот шаблон используется и для таблицы, и для CSV файла
 default_df_data = []
-for i, loc in enumerate(LOCATIONS):
+for loc in LOCATIONS:
     default_df_data.append({
-        "Location": loc, "New Hires": default_hiring[i], "Replacements": default_replacements[i],
+        "Location": loc, "New Hires": default_hiring[loc], "Replacements": default_replacements[loc],
         f"Past | {MODELS[0]}": past_data[loc][0], f"Past | {MODELS[1]}": past_data[loc][1], f"Past | {MODELS[2]}": past_data[loc][2],
         f"Stock | {MODELS[0]}": stock_data[loc][0], f"Stock | {MODELS[1]}": stock_data[loc][1], f"Stock | {MODELS[2]}": stock_data[loc][2],
     })
 default_df = pd.DataFrame(default_df_data)
 
-APP_VERSION = "1.1" # 🚀 Контроль версий: меняйте или увеличивайте цифру при изменении колонок (например, "1.2")
+APP_VERSION = "1.4" # 🚀 Контроль версий: меняем цифру чтобы сбросить кэш и применить алфавитную сортировку
 
 # --- УПРАВЛЕНИЕ СОСТОЯНИЕМ (Session State) ---
 # Это позволяет не терять данные пользователя (Memory), когда он переключается между
