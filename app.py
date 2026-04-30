@@ -1,10 +1,14 @@
+# --- ИМПОРТ БИБЛИОТЕК ---
 import streamlit as st
 import pandas as pd
 import math
 
+# Настройка страницы (должна быть первой командой Streamlit)
+# layout="wide" расширяет контент на весь экран
 st.set_page_config(page_title="Laptop Purchase Calculator", layout="wide")
 
 # --- Скрываем стандартный брендинг Streamlit (гамбургер-меню и подвал) ---
+# Это придает приложению вид корпоративного white-label продукта
 hide_streamlit_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -17,23 +21,27 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 st.title("Laptop Purchase Calculator")
 
-# Константы локаций и моделей
+# --- БАЗОВЫЕ КОНСТАНТЫ И ДЕФОЛТНЫЕ ДАННЫЕ ---
 LOCATIONS = ["Bishkek", "Astana", "Karaganda", "Almaty", "Tashkent"]
 MODELS = ["Apple MacBook Pro 14", "HP EliteBook 8 G1i 16", "HP EliteBook 8 G1i 14"]
 
-# Данные по умолчанию
+# Стартовые значения для найма сотрудников и замены сломанных устройств
 default_hiring = [31, 100, 10, 35, 83]
 default_replacements = [20, 30, 7, 27, 30]
 
+# Доли для вычисления будущих закупок (история прошлого квартала)
 past_data = {
     "Bishkek": [19, 15, 0], "Astana": [0, 40, 0], "Karaganda": [0, 24, 0], "Almaty": [0, 40, 0], "Tashkent": [0, 40, 0]
 }
 
+# Текущие запасы (бутиковый инвентарь или остатки на складе)
 stock_data = {
     "Bishkek": [38, 21, 10], "Astana": [36, 20, 13], "Karaganda": [31, 17, 6], "Almaty": [108, 35, 11], "Tashkent": [89, 102, 26]
 }
 
-# Подготовка дефолтного датафрейма для табличного вода
+# --- ПОДГОТОВКА СТРУКТУРЫ ДАННЫХ ---
+# Формируем матрицу (DataFrame) со всеми данными с аккуратными заголовками (разделитель "|")
+# Этот шаблон используется и для таблицы, и для CSV файла
 default_df_data = []
 for i, loc in enumerate(LOCATIONS):
     default_df_data.append({
@@ -43,18 +51,21 @@ for i, loc in enumerate(LOCATIONS):
     })
 default_df = pd.DataFrame(default_df_data)
 
-APP_VERSION = "1.1" # 🚀 Меняйте эту цифру при каждом обновлении структуры колонок
+APP_VERSION = "1.1" # 🚀 Контроль версий: меняйте или увеличивайте цифру при изменении колонок (например, "1.2")
 
-# Используем Session State для сохранения данных между вкладками с проверкой версии
+# --- УПРАВЛЕНИЕ СОСТОЯНИЕМ (Session State) ---
+# Это позволяет не терять данные пользователя (Memory), когда он переключается между
+# разными кнопками/таблицами или открывает раздвижные блоки и меняет ползунки на странице.
 if "app_version" not in st.session_state or st.session_state.app_version != APP_VERSION:
-    st.session_state.clear() # Полностью уничтожаем закэшированные (старые) значения пользователя
+    # 🌟 Если версия кэша устарела: чистим его начисто, чтобы избежать ошибки KeyError 
+    st.session_state.clear() 
     st.session_state.app_version = APP_VERSION
     st.session_state.app_df = default_df.copy()
     st.toast("🔄 The app has been successfully updated to the latest version!", icon="🎉")
 elif "app_df" not in st.session_state:
-    st.session_state.app_df = default_df.copy()
+    st.session_state.app_df = default_df.copy() # Если кэш пустой - загружаем дефолтный шаблон
 
-st.sidebar.header("⚙️ Configuration")
+# --- ПАНЕЛЬ НАСТРОЕК (Sidebar) ---
 input_mode = st.sidebar.radio("Choose Input Method:", ["Interactive Table (Paste from Excel)", "Upload CSV File", "Manual Forms"])
 
 st.sidebar.header("📦 Buffer Reserve")
@@ -71,19 +82,22 @@ with st.expander("ℹ️ Column Definitions (How calculations work)"):
     * **Stock [Model]**: Current available stock in the office. These items will be subtracted from the final purchase amount.
     """)
 
-hiring_data = {}
-replacement_data = {}
-past_inputs = {loc: [] for loc in LOCATIONS}
-stock_inputs = {loc: [] for loc in LOCATIONS}
+# --- СБОР И АНАЛИЗ ДАННЫХ СО СТРАНИЦЫ ---
+hiring_data = {}         # Очередь на найм по городам
+replacement_data = {}    # Реплейсмент по городам 
+past_inputs = {loc: [] for loc in LOCATIONS}   # Прошлые показатели (матричные доли)
+stock_inputs = {loc: [] for loc in LOCATIONS}  # Остатки на складе (буфер для вычета)
 
+# --- ИНТЕРФЕЙС РОУТИНГА --- 
+# Логика изменяется в зависимости от выбора флажка в меню (Radio button)
 if input_mode == "Interactive Table (Paste from Excel)":
     st.markdown("You can **copy and paste** data directly from Excel into this table. Edit any cell as needed.")
     
-    # Редактируем состояние
+    # 📝 Выводим редактор таблиц (st.data_editor) и привязываем его к сохраненному состоянию (app_df)
     edited_df = st.data_editor(st.session_state.app_df, use_container_width=True, hide_index=True)
     st.session_state.app_df = edited_df
     
-    # Парсим результаты из таблицы
+    # Пробегаем по строкам отредактированной таблицы и складываем данные в словари-переменные
     for _, row in edited_df.iterrows():
         loc = row["Location"]
         if loc in LOCATIONS:
@@ -94,20 +108,26 @@ if input_mode == "Interactive Table (Paste from Excel)":
 
 elif input_mode == "Upload CSV File":
     st.markdown("Download the template, fill it in Excel, and upload it back here.")
+    
+    # Конвертируем дефолтную таблицу (pd.DataFrame) в строку csv формата и предлагаем ее скачать
     template_csv = default_df.to_csv(index=False).encode('utf-8')
     st.download_button("Download CSV Template", data=template_csv, file_name="template.csv", mime="text/csv")
     
+    # Виджет загрузки (Drag and drop файла от юзера)
     uploaded_file = st.file_uploader("Upload filled CSV here", type=["csv"])
+    
+    # --- ВАЛИДАЦИЯ ФАЙЛА И ОБРАБОТКА ОШИБОК (Try-Except) ---
     if uploaded_file is not None:
         try:
             uploaded_df = pd.read_csv(uploaded_file)
             
-            # Проверка, что файл не сломан (Валидация колонок)
+            # Проверки: сравниваем колонки загруженного файла с 'expected_cols'
             expected_cols = list(default_df.columns)
             if not all(col in uploaded_df.columns for col in expected_cols):
                 st.error("Error: Uploaded file is missing required columns. Please use the downloaded template.")
             else:
-                st.session_state.app_df = uploaded_df  # Сохраняем в состояние
+                # Если файл верен, парсим его данные в наши словари 
+                st.session_state.app_df = uploaded_df 
                 st.dataframe(uploaded_df, use_container_width=True)
                 for _, row in uploaded_df.iterrows():
                     loc = row["Location"]
@@ -120,7 +140,8 @@ elif input_mode == "Upload CSV File":
             st.error(f"Error reading file: {e}. Please ensure it matches the template.")
     else:
         st.warning("Awaiting file upload... Using previously saved or default values in the meantime.")
-        # Запасной вариант пока нет файла (берем из состояния)
+        # Пока пользователь не загрузил файл (или загрузил битый),
+        # приложение берет резервные данные из памяти Streamlit (Session state).
         for _, row in st.session_state.app_df.iterrows():
             loc = row["Location"]
             hiring_data[loc], replacement_data[loc] = int(row["New Hires"]), int(row["Replacements"])
@@ -128,10 +149,11 @@ elif input_mode == "Upload CSV File":
             stock_inputs[loc] = [int(row[f"Stock | {MODELS[0]}"]), int(row[f"Stock | {MODELS[1]}"]), int(row[f"Stock | {MODELS[2]}"])]
 
 else:
-    # Исходный ручной ввод
+    # Если выбран режим "Manual Forms", выводим поля ввода (инпуты) столбцами (по 5 столбцов - один на офис)
+    # Формируем 5 столбцов `st.columns` для найма/реплейсов
     cols = st.columns(len(LOCATIONS))
     for i, loc in enumerate(LOCATIONS):
-        # Получаем сохраненные значения из df_state
+        # Подгружаем кэшированные стейты для данного города `loc` из `app_df`
         saved_row = st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc]
         with cols[i]:
             st.subheader(loc)
@@ -156,7 +178,9 @@ else:
                 val = st.number_input(f"{model} (Stock {loc})", min_value=0, value=int(saved_row[f"Stock | {model}"].values[0]))
                 stock_inputs[loc].append(val)
                 
-    # Сохраняем новые цифры обратно в состояние
+    # СОХРАНЕНИЕ ДАННЫХ ОБРАТНО В SESSION STATE
+    # Каждый раз когда меняются ручные инпуты, мы перезаписываем dataframe стейт. 
+    # Это позволяет пользователю сменить вкладку на "Intrereactive table", и увидеть там свои ручные цифры
     for loc in LOCATIONS:
         st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, "New Hires"] = hiring_data[loc]
         st.session_state.app_df.loc[st.session_state.app_df["Location"] == loc, "Replacements"] = replacement_data[loc]
@@ -166,38 +190,56 @@ else:
 
 st.header("2. Calculation & Results")
 
+# --- ВЫПОЛНЕНИЕ РАСЧЕТА ЗАДАЧИ ---
+# Запуск кнопки инициирует алгоритмическое вычисление закупок
 if st.button("Calculate Purchases", type="primary"):
-    results = []
+    results = [] # Сюда складываем рассчитанную информацию для итоговой таблицы
     total_buy = 0
     
     for loc in LOCATIONS:
+        # Для начала подсчитаем сколько человек в городе вообще нуждаются в ноутбуке 
         total_need = hiring_data[loc] + replacement_data[loc]
         
-        # Вычисляем распределение (доли) на основе введенных прошлых закупок
+        # Получаем сумму всех купленных ноутов филиала за прошлый квартал.
+        # Например 10 Macbook + 20 HP = 30(sum)
         total_past = sum(past_inputs[loc])
         if total_past == 0:
-            dist = [1.0 / len(MODELS)] * len(MODELS) # Равными долями по 33.3%
+            # Если филиал новый (никто ничего не закупал), устанавливаем дефолтные ровные доли (напр: 33.3% / 33.3% / 33.3%)
+            dist = [1.0 / len(MODELS)] * len(MODELS)
         else:
+            # Иначе высчитываем процентную долю каждой модели (например 10 / 30 = 33% для макбуков, 20 / 30 = 66% для HP)
             dist = [past_inputs[loc][j] / total_past for j in range(len(MODELS))]
         
-        # --- Метод максимального остатка (Hare-Niemeyer) ---
+        # --- АЛГОРИТМ РАСПРЕДЕЛЕНИЯ: Метод максимального остатка (Hare-Niemeyer Algorithm) ---
+        # 1. Мы умножаем потребность (Total_need=5 чел) на (долю=33% Macbook). Это даст 1.65 макбуков.
         exact_needs = [total_need * d for d in dist]
+        # 2. Мы берем только целую часть потребности. Было 1.65 - стало `math.floor` 1. 
         base_needs = [math.floor(n) for n in exact_needs]
+        # 3. Высчитываем дробный остаток для каждой модели: 1.65 - 1 = 0.65. Эту цифру запоминаем.  
         remainders = [(exact_needs[j] - base_needs[j], j) for j in range(len(MODELS))]
         
-        # Распределяем остатки
+        # 4. Вычисляем сколько "потерянных" ноутбуков нам нужно вернуть. (total_need - сумма округленных ноутбуков)
         remainder_to_distribute = total_need - sum(base_needs)
+        
+        # 5. Сортируем остатки убыванию. Тот, у кого дробная часть выше всего (например 0.9 против 0.1), 
+        # тот и получает право забрать +1 потерянный целый ноут. Это гарантирует, что total == total_need.
         remainders.sort(key=lambda x: x[0], reverse=True)
         for i in range(remainder_to_distribute):
             base_needs[remainders[i][1]] += 1
 
         for j, model in enumerate(MODELS):
-            # Базовая потребность по модели (с правильным округлением Хэра-Нимейера)
+            # Базовая потребность по модели (с правильным округлением квотирования Хэра-Нимейера)
             base_need_model = base_needs[j]
-            # Потребность с учетом резерва (округляем вверх, чтобы всегда был запас)
+            
+            # --- ЛОГИКА РЕЗЕРВАЦИИ / БУФЕРА ---
+            # Допустим, нам нужно заказать 5 Macbooks. Буфер (slider) равен 10%. 
+            # 5 * 10% = 0.5 резервного ноутбука (всего 5.5). Мы округляем 5.5 вверх(math.ceil), получая итоговую цель = 6. 
+            # Это дает гарантию что непредвиденная поломка будет покрыта.
             need_with_reserve = math.ceil(base_need_model * (1 + reserve_percent / 100))
             
             stock = stock_inputs[loc][j]
+            # Закупка - это формула (total_need_with_buffer - текущий_остаток). 
+            # Если остатков больше чем надо резервировать, `max(0, -x)` выведет чистый 0 (избавляя нас от отрицательных цифр)
             buy = max(0, need_with_reserve - stock)
             
             results.append({
@@ -211,26 +253,31 @@ if st.button("Calculate Purchases", type="primary"):
             
     df = pd.DataFrame(results)
     
+    # --- БЛОК ВИЗУАЛЬНОГО ВЫВОДА --- 
     st.header("Final Purchase Plan")
     
-    # Визуальное группирование по городам для отображения на сайте
+    # Визуальное группирование по городам (Метод set_index) 
+    # В таблице Pandas одинаковые названия городов сольются в одну красивую большую ячейку
     df_display = df.set_index(["Location", "Model"])
     st.dataframe(df_display, use_container_width=True)
     
-    # Красивая метрика
+    # Красивая метрика (KPI) с итоговой штучной закупкой
     st.metric(label="Total Laptops to Purchase 💻", value=f"{total_buy} pcs.")
     st.info(f"💡 The *Total Need* and final purchase quantity already include the **{reserve_percent}%** buffer reserve.")
     st.divider()
     
-    # Кнопки экспорта
+    # --- БЛОК ЭКСПОРТА ФАЙЛОВ ---
     import io
     
-    # Excel
+    # 1. EXCEL (.xlsx)
+    # Пишем в виртуальный буфер памяти (BytesIO) чтобы не засорять диск сервера мусорными файлами
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Purchase Plan')
     
-    # PDF
+    # 2. PDF
+    # Создаем холст ReportLab в формате Letter и альбомной ориентации (landscape),
+    # чтобы колонки таблицы не обрезались по ширине.
     from reportlab.lib.pagesizes import letter, landscape
     from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
     from reportlab.lib import colors
@@ -240,12 +287,16 @@ if st.button("Calculate Purchases", type="primary"):
     doc = SimpleDocTemplate(pdf_buffer, pagesize=landscape(letter))
     elements = []
     
+    # Стилизуем заголовок "Quarterly Purchase Plan (Total: 400 pcs.)"
     styles = getSampleStyleSheet()
     elements.append(Paragraph(f"Quarterly Purchase Plan (Total: {total_buy} pcs.)", styles['Title']))
     elements.append(Spacer(1, 12))
     
+    # Переводим датафрейм Pandas в список списков (list of lists) для генерации таблицы ReportLab
     pdf_data = [df.columns.values.tolist()] + df.values.tolist()
     t = Table(pdf_data)
+    
+    # Стилизация таблицы PDF: Серая заголовочная шапка, белые буквы и черная сетка границ
     t.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -256,9 +307,10 @@ if st.button("Calculate Purchases", type="primary"):
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
     elements.append(t)
-    doc.build(elements)
+    doc.build(elements) # Генерируем файл
     
-    # CSV
+    # 3. CSV
+    # Простой и легкий текстовый формат (для импортов и макросов)
     csv = df.to_csv(index=False).encode('utf-8')
     
     # Располагаем три кнопки скачивания в ряд
