@@ -66,7 +66,7 @@ elif "app_df" not in st.session_state:
     st.session_state.app_df = default_df.copy() # Если кэш пустой - загружаем дефолтный шаблон
 
 # --- ПАНЕЛЬ НАСТРОЕК (Sidebar) ---
-input_mode = st.sidebar.radio("Choose Input Method:", ["Interactive Table (Paste from Excel)", "Upload CSV File", "Manual Forms"])
+input_mode = st.sidebar.radio("Choose Input Method:", ["Interactive Table (Paste from Excel)", "Upload File (Excel / CSV)", "Manual Forms"])
 
 st.sidebar.header("📦 Buffer Reserve")
 reserve_percent = st.sidebar.slider("Additional Reserve (%) for Quarter Needs", min_value=0, max_value=30, value=10, step=1)
@@ -106,20 +106,28 @@ if input_mode == "Interactive Table (Paste from Excel)":
             past_inputs[loc] = [int(row[f"Past | {MODELS[0]}"]), int(row[f"Past | {MODELS[1]}"]), int(row[f"Past | {MODELS[2]}"])]
             stock_inputs[loc] = [int(row[f"Stock | {MODELS[0]}"]), int(row[f"Stock | {MODELS[1]}"]), int(row[f"Stock | {MODELS[2]}"])]
 
-elif input_mode == "Upload CSV File":
-    st.markdown("Download the template, fill it in Excel, and upload it back here.")
+elif input_mode == "Upload File (Excel / CSV)":
+    st.markdown("Download the Excel template, fill it, and upload it back here. (Both `.xlsx` and `.csv` are supported).")
     
-    # Конвертируем дефолтную таблицу (pd.DataFrame) в строку csv формата и предлагаем ее скачать
-    template_csv = default_df.to_csv(index=False).encode('utf-8')
-    st.download_button("Download CSV Template", data=template_csv, file_name="template.csv", mime="text/csv")
+    # Конвертируем дефолтную таблицу (pd.DataFrame) в Excel для скачивания (это удобнее для юзеров)
+    import io
+    template_buffer = io.BytesIO()
+    with pd.ExcelWriter(template_buffer, engine='openpyxl') as writer:
+        default_df.to_excel(writer, index=False, sheet_name='Template')
     
-    # Виджет загрузки (Drag and drop файла от юзера)
-    uploaded_file = st.file_uploader("Upload filled CSV here", type=["csv"])
+    st.download_button("📥 Download Excel Template", data=template_buffer.getvalue(), file_name="template.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    
+    # Виджет загрузки (Drag and drop). Разрешаем и Excel и CSV форматы
+    uploaded_file = st.file_uploader("Upload filled file here", type=["xlsx", "csv"])
     
     # --- ВАЛИДАЦИЯ ФАЙЛА И ОБРАБОТКА ОШИБОК (Try-Except) ---
     if uploaded_file is not None:
         try:
-            uploaded_df = pd.read_csv(uploaded_file)
+            # Читаем файл в зависимости от его расширения
+            if uploaded_file.name.endswith('.csv'):
+                uploaded_df = pd.read_csv(uploaded_file)
+            else:
+                uploaded_df = pd.read_excel(uploaded_file, engine='openpyxl')
             
             # Проверки: сравниваем колонки загруженного файла с 'expected_cols'
             expected_cols = list(default_df.columns)
