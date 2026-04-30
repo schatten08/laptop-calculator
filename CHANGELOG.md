@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * **Native Excel Upload & Templates**: Transitioned from `.csv` to `.xlsx` for the required template download to prevent delimiter and UTF-8 encoding issues for end-users. The file uploader now natively parses both Excel and CSV formats.
 * **Bidirectional Data Sync**: Data uploaded via Excel now automatically and accurately pre-fills the input values in the "Manual Forms" and "Interactive Table" views thanks to the central Session State architecture.
 
+### Removed
+* **CSV Export**: Removed the CSV export button to declutter the user interface, as Excel and PDF formats fully cover business reporting needs.
+
 ## [1.2.0] - 2026-04-29
 ### Added
 * **Excel Export**: Added `openpyxl` engine to generate full `.xlsx` purchase plans directly in the browser memory.

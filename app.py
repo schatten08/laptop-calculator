@@ -317,16 +317,10 @@ if st.button("Calculate Purchases", type="primary"):
     elements.append(t)
     doc.build(elements) # Генерируем файл
     
-    # 3. CSV
-    # Простой и легкий текстовый формат (для импортов и макросов)
-    csv = df.to_csv(index=False).encode('utf-8')
-    
-    # Располагаем три кнопки скачивания в ряд
+    # Располагаем две кнопки скачивания в ряд (Excel и PDF)
     st.markdown("### Export Results")
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     with col1:
-        st.download_button("📥 Excel (.xlsx)", data=buffer.getvalue(), file_name='laptop_plan.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
+        st.download_button("📥 Download Excel (.xlsx)", data=buffer.getvalue(), file_name='laptop_plan.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
     with col2:
-        st.download_button("📥 PDF Document", data=pdf_buffer.getvalue(), file_name='laptop_plan.pdf', mime='application/pdf', use_container_width=True)
-    with col3:
-        st.download_button("📥 CSV Data", data=csv, file_name='laptop_plan.csv', mime='text/csv', use_container_width=True)
+        st.download_button("📥 Download PDF", data=pdf_buffer.getvalue(), file_name='laptop_plan.pdf', mime='application/pdf', use_container_width=True)

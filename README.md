@@ -16,7 +16,6 @@ A Streamlit-based web application designed to automate and calculate quarterly l
 * **Export Options**: Download the final computed purchase plan as:
   * Excel (`.xlsx`)
   * PDF Document (`.pdf`)
-  * CSV Data (`.csv`)
 * **Custom UI**: Clean corporate interface with Streamlit default branding hidden.
 
 ## Installation
@@ -38,8 +37,8 @@ A Streamlit-based web application designed to automate and calculate quarterly l
 
 ## Security & Data Privacy
 This tool is designed with corporate data security (GDPR/NDA compliance) in mind:
-* **No Persistent Storage**: Uploaded CSV files, manually entered numbers, and calculated results are processed entirely in-memory (RAM) during the active browser session. 
-* **Ephemeral Exports**: Downloadable Excel, PDF, and CSV files are generated dynamically on-the-fly using secure memory buffers (`io.BytesIO`). Files are **never written or saved to any server hard drive**.
+* **No Persistent Storage**: Uploaded files, manually entered numbers, and calculated results are processed entirely in-memory (RAM) during the active browser session. 
+* **Ephemeral Exports**: Downloadable Excel and PDF files are generated dynamically on-the-fly using secure memory buffers (`io.BytesIO`). Files are **never written or saved to any server hard drive**.
 * **Stateless Architecture**: Streamlit automatically destroys the active session state and wipes all entered data immediately when the user closes the tab, refreshes, or the session times out. There is no back-end database harvesting company data.
 
 ## Technology Stack
