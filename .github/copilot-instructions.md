@@ -19,4 +19,4 @@ The application relies heavily on data manipulation using `pandas` and exports r
 * Write all code comments and architectural explanations to the user in **Russian**.
 * When suggesting edits, provide concise replacements rather than rewriting the entire file.
 * Always handle file uploads (CSV/Excel) with a `try-except` block and validate that the columns match exactly.
-* **Git Commits:** Always suggest and proactively write beautiful, meaningful, and professional Git commit messages using Conventional Commits format (e.g., `feat:`, `fix:`, `ui:`, `docs:`, `refactor:`) when finalizing changes.
+* **Git Commits & Push:** Automatically formulate and suggest a beautiful, meaningful Git commit message using Conventional Commits format (e.g., `feat:`, `fix:`, `docs:`) based on the exact changes made. Always offer to execute the commit and `git push` the changes to the repository for the user.
