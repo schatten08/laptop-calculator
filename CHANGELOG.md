@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * **Custom Theming**: Added `.streamlit/config.toml` to force a professional Dark Mode UI baseline across all browsers, regardless of the user's OS settings. Replaced Streamlit's default red error-like highlight color with a calming corporate blue (`#1f77b4`).
 * **Native Excel Upload & Templates**: Transitioned from `.csv` to `.xlsx` for the required template download to prevent delimiter and UTF-8 encoding issues for end-users. The file uploader now natively parses both Excel and CSV formats.
 * **Bidirectional Data Sync**: Data uploaded via Excel now automatically and accurately pre-fills the input values in the "Manual Forms" and "Interactive Table" views thanks to the central Session State architecture.
+* **AI Instruction Rules**: Updated `.github/copilot-instructions.md` to strictly enforce Conventional Commits, automated git push prompts, and structured Changelog maintenance moving forward.
+
+### Changed
+* **UI Improvements**: Separated the final purchase plan table into distinct visual blocks by location.
+* **Data Sorting**: Locations and models are now sorted alphabetically natively within the UI and the generated Excel/PDF export documents for better readability.
 
 ### Removed
 * **CSV Export**: Removed the CSV export button to declutter the user interface, as Excel and PDF formats fully cover business reporting needs.
