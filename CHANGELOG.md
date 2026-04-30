@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0] - 2026-04-30
 ### Added
+* **Custom Theming**: Added `.streamlit/config.toml` to force a professional Dark Mode UI baseline across all browsers, regardless of the user's OS settings. Replaced Streamlit's default red error-like highlight color with a calming corporate blue (`#1f77b4`).
 * **Native Excel Upload & Templates**: Transitioned from `.csv` to `.xlsx` for the required template download to prevent delimiter and UTF-8 encoding issues for end-users. The file uploader now natively parses both Excel and CSV formats.
 * **Bidirectional Data Sync**: Data uploaded via Excel now automatically and accurately pre-fills the input values in the "Manual Forms" and "Interactive Table" views thanks to the central Session State architecture.
 
