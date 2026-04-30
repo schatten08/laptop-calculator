@@ -1,6 +1,7 @@
 # Laptop Purchase Calculator
 
-[![Open in Streamlit](https://img.shields.io/badge/Open_in-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://laptop-calc.streamlit.app/)
+[![Open in Streamlit](https://img.shields.io/badge/Open_in-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://laptop-calc.streamlit.app/)  
+*👉 Click the badge above to access the live web application directly in your browser.*
 
 A Streamlit-based web application designed to automate and calculate quarterly laptop procurement plans for multiple branch offices.
 
