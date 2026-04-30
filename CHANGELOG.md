@@ -5,6 +5,11 @@ All notable changes to the Laptop Purchase Calculator will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-04-30
+### Added
+* **Native Excel Upload & Templates**: Transitioned from `.csv` to `.xlsx` for the required template download to prevent delimiter and UTF-8 encoding issues for end-users. The file uploader now natively parses both Excel and CSV formats.
+* **Bidirectional Data Sync**: Data uploaded via Excel now automatically and accurately pre-fills the input values in the "Manual Forms" and "Interactive Table" views thanks to the central Session State architecture.
+
 ## [1.2.0] - 2026-04-29
 ### Added
 * **Excel Export**: Added `openpyxl` engine to generate full `.xlsx` purchase plans directly in the browser memory.
