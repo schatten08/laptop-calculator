@@ -260,12 +260,14 @@ if st.button("Calculate Purchases", type="primary"):
             total_buy += buy
             
     df = pd.DataFrame(results)
+    # Сортируем таблицу по алфавиту для консистентности (как в UI, так и в экспортированных Excel/PDF)
+    df = df.sort_values(by=["Location", "Model"])
     
     # --- БЛОК ВИЗУАЛЬНОГО ВЫВОДА --- 
     st.header("Final Purchase Plan")
     
-    # Визуальное разделение таблиц по локациям для лучшей читаемости
-    for loc, group_df in df.groupby("Location", sort=False):
+    # Визуальное разделение таблиц по локациям для лучшей читаемости (сортировка по алфавиту)
+    for loc, group_df in df.groupby("Location"):
         st.write(f"##### 📍 {loc}")
         # Убираем колонку Location (она теперь в заголовке) и ставим Model как индекс
         loc_df = group_df.drop(columns=["Location"]).set_index("Model")
