@@ -264,10 +264,12 @@ if st.button("Calculate Purchases", type="primary"):
     # --- БЛОК ВИЗУАЛЬНОГО ВЫВОДА --- 
     st.header("Final Purchase Plan")
     
-    # Визуальное группирование по городам (Метод set_index) 
-    # В таблице Pandas одинаковые названия городов сольются в одну красивую большую ячейку
-    df_display = df.set_index(["Location", "Model"])
-    st.dataframe(df_display, use_container_width=True)
+    # Визуальное разделение таблиц по локациям для лучшей читаемости
+    for loc, group_df in df.groupby("Location", sort=False):
+        st.write(f"##### 📍 {loc}")
+        # Убираем колонку Location (она теперь в заголовке) и ставим Model как индекс
+        loc_df = group_df.drop(columns=["Location"]).set_index("Model")
+        st.dataframe(loc_df, use_container_width=True)
     
     # Красивая метрика (KPI) с итоговой штучной закупкой
     st.metric(label="Total Laptops to Purchase 💻", value=f"{total_buy} pcs.")
