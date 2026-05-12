@@ -25,7 +25,7 @@ st.title("Laptop Purchase Calculator")
 # --- БАЗОВЫЕ КОНСТАНТЫ И ДЕФОЛТНЫЕ ДАННЫЕ ---
 # Сортируем локации по алфавиту для всех таблиц и форм
 LOCATIONS = sorted(["Bishkek", "Astana", "Karaganda", "Almaty", "Tashkent"])
-MODELS = ["Apple MacBook Pro 14", "HP EliteBook 8 G1i 16", "HP EliteBook 8 G1i 14"]
+MODELS = ["Apple MacBook Pro 14", "HP EliteBook 8 G1i 16", "HP EliteBook 8 G1i 14", "Apple MacBook Air"]
 
 # Стартовые значения для найма сотрудников и замены сломанных устройств
 default_hiring = {"Bishkek": 31, "Astana": 100, "Karaganda": 10, "Almaty": 35, "Tashkent": 83}
@@ -33,12 +33,12 @@ default_replacements = {"Bishkek": 20, "Astana": 30, "Karaganda": 7, "Almaty": 2
 
 # Доли для вычисления будущих закупок (история прошлого квартала)
 past_data = {
-    "Bishkek": [19, 15, 0], "Astana": [0, 40, 0], "Karaganda": [0, 24, 0], "Almaty": [0, 40, 0], "Tashkent": [0, 40, 0]
+    "Bishkek": [19, 15, 0, 0], "Astana": [0, 40, 0, 0], "Karaganda": [0, 24, 0, 0], "Almaty": [0, 40, 0, 0], "Tashkent": [0, 40, 0, 0]
 }
 
 # Текущие запасы (бутиковый инвентарь или остатки на складе)
 stock_data = {
-    "Bishkek": [38, 21, 10], "Astana": [36, 20, 13], "Karaganda": [31, 17, 6], "Almaty": [108, 35, 11], "Tashkent": [89, 102, 26]
+    "Bishkek": [38, 21, 10, 0], "Astana": [36, 20, 13, 0], "Karaganda": [31, 17, 6, 0], "Almaty": [108, 35, 11, 0], "Tashkent": [89, 102, 26, 0]
 }
 
 # --- ПОДГОТОВКА СТРУКТУРЫ ДАННЫХ ---
@@ -46,14 +46,19 @@ stock_data = {
 # Этот шаблон используется и для таблицы, и для CSV файла
 default_df_data = []
 for loc in LOCATIONS:
-    default_df_data.append({
-        "Location": loc, "New Hires": default_hiring[loc], "Replacements": default_replacements[loc],
-        f"Past | {MODELS[0]}": past_data[loc][0], f"Past | {MODELS[1]}": past_data[loc][1], f"Past | {MODELS[2]}": past_data[loc][2],
-        f"Stock | {MODELS[0]}": stock_data[loc][0], f"Stock | {MODELS[1]}": stock_data[loc][1], f"Stock | {MODELS[2]}": stock_data[loc][2],
-    })
+    row_data = {
+        "Location": loc,
+        "New Hires": default_hiring[loc],
+        "Replacements": default_replacements[loc],
+    }
+    for j, model in enumerate(MODELS):
+        row_data[f"Past | {model}"] = past_data[loc][j]
+        row_data[f"Stock | {model}"] = stock_data[loc][j]
+    default_df_data.append(row_data)
+
 default_df = pd.DataFrame(default_df_data)
 
-APP_VERSION = "1.4" # 🚀 Контроль версий: меняем цифру чтобы сбросить кэш и применить алфавитную сортировку
+APP_VERSION = "1.5" # 🚀 Контроль версий: меняем цифру чтобы сбросить кэш и применить новые модели
 
 # --- УПРАВЛЕНИЕ СОСТОЯНИЕМ (Session State) ---
 # Это позволяет не терять данные пользователя (Memory), когда он переключается между
@@ -136,8 +141,8 @@ if input_mode == "Interactive Table (Paste from Excel)":
         if loc in LOCATIONS:
             hiring_data[loc] = int(row["New Hires"])
             replacement_data[loc] = int(row["Replacements"])
-            past_inputs[loc] = [int(row[f"Past | {MODELS[0]}"]), int(row[f"Past | {MODELS[1]}"]), int(row[f"Past | {MODELS[2]}"])]
-            stock_inputs[loc] = [int(row[f"Stock | {MODELS[0]}"]), int(row[f"Stock | {MODELS[1]}"]), int(row[f"Stock | {MODELS[2]}"])]
+            past_inputs[loc] = [int(row[f"Past | {model}"]) for model in MODELS]
+            stock_inputs[loc] = [int(row[f"Stock | {model}"]) for model in MODELS]
 
 elif input_mode == "Upload File (Excel / CSV)":
     st.markdown("Download the Excel template, fill it, and upload it back here. (Both `.xlsx` and `.csv` are supported).")

@@ -5,6 +5,11 @@ All notable changes to the Laptop Purchase Calculator will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-05-12
+### Added
+* **New Equipment Model**: Added `Apple MacBook Air` to the tracking system. The core application logic was refactored to dynamically generate columns based on the the `MODELS` array length, rather than hardcoding exactly 3 models.
+* **Cache Busting**: Bumped `APP_VERSION` to `1.5` to clear outdated session states and seamlessly integrate the new model columns without triggering `KeyError`.
+
 ## [1.4.0] - 2026-04-30
 ### Added
 * **Developer Experience (DX)**: Implemented professional VS Code workspace settings in `.vscode/settings.json`, including structure auto-formatting on save, trailing space cleanup, bracket pair colorization, and basic Pylance type checking.
