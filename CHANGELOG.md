@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.4.0] - 2026-04-30
 ### Added
 * **Developer Experience (DX)**: Implemented professional VS Code workspace settings in `.vscode/settings.json`, including structure auto-formatting on save, trailing space cleanup, bracket pair colorization, and basic Pylance type checking.
+* **Feedback Form**: Added an interactive form (`st.form`) inside the sidebar allowing users to submit text comments, rate the application, and trigger celebration animations upon successful submission.
 
 ### Changed
 * **Interactive Table & Inputs**: Refactored the core application constants to natively sort locations alphabetically across all manual input forms and the interactive tables. Data arrays were converted to strict dictionary mappings to prevent indexing errors.

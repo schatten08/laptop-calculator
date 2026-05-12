@@ -73,6 +73,24 @@ st.sidebar.header("📦 Buffer Reserve")
 reserve_percent = st.sidebar.slider("Additional Reserve (%) for Quarter Needs", min_value=0, max_value=30, value=10, step=1)
 st.sidebar.markdown("Provides a buffer in case of sudden breakages or unforeseen hiring.")
 
+st.sidebar.divider()
+
+# --- ФОРМА ОБРАТНОЙ СВЯЗИ (Feedback Form) ---
+st.sidebar.header("💬 Feedback")
+with st.sidebar.form(key="feedback_form"):
+    feedback_text = st.text_area("Tell us how to improve the app:", placeholder="e.g. Can we add Dell laptops?")
+    rating = st.slider("Rate the app:", 1, 5, 5)
+    submit_feed = st.form_submit_button("Send Feedback")
+
+    if submit_feed:
+        if feedback_text.strip():
+            # Здесь можно сохранить данные в БД или отправить по API
+            st.success("✅ Thank you for your feedback! We'll review it soon.")
+            # st.balloons() - красивая анимация шариков при успешной отправке
+            st.balloons()
+        else:
+            st.error("Please enter some text before submitting.")
+
 st.header("1. Input Data")
 
 with st.expander("ℹ️ Column Definitions (How calculations work)"):
