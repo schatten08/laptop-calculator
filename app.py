@@ -88,17 +88,16 @@ with st.sidebar.form(key="feedback_form"):
             # Получаем секретные ключи из менеджера секретов Streamlit
             bot_token = st.secrets.get("TELEGRAM_BOT_TOKEN", "")
             chat_id = st.secrets.get("TELEGRAM_CHAT_ID", "")
-            
+
             if bot_token and chat_id:
                 # Формируем сообщение и отправляем запрос к API Telegram
                 msg = f"💡 **Новый фидбек из приложения!**\n\n⭐ Оценка: {rating}/5\n💬 Текст: {feedback_text.strip()}"
                 url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
                 payload = {"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"}
-                
+
                 try:
                     requests.post(url, json=payload, timeout=5)
                     st.success("✅ Thank you for your feedback! We'll review it soon.")
-                    st.balloons()
                 except Exception as e:
                     st.error("Failed to send feedback. Please try again later.")
             else:
