@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import math
+import requests
 
 # Настройка страницы (должна быть первой командой Streamlit)
 # layout="wide" расширяет контент на весь экран
@@ -84,10 +85,24 @@ with st.sidebar.form(key="feedback_form"):
 
     if submit_feed:
         if feedback_text.strip():
-            # Здесь можно сохранить данные в БД или отправить по API
-            st.success("✅ Thank you for your feedback! We'll review it soon.")
-            # st.balloons() - красивая анимация шариков при успешной отправке
-            st.balloons()
+            # Получаем секретные ключи из менеджера секретов Streamlit
+            bot_token = st.secrets.get("TELEGRAM_BOT_TOKEN", "")
+            chat_id = st.secrets.get("TELEGRAM_CHAT_ID", "")
+            
+            if bot_token and chat_id:
+                # Формируем сообщение и отправляем запрос к API Telegram
+                msg = f"💡 **Новый фидбек из приложения!**\n\n⭐ Оценка: {rating}/5\n💬 Текст: {feedback_text.strip()}"
+                url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+                payload = {"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"}
+                
+                try:
+                    requests.post(url, json=payload, timeout=5)
+                    st.success("✅ Thank you for your feedback! We'll review it soon.")
+                    st.balloons()
+                except Exception as e:
+                    st.error("Failed to send feedback. Please try again later.")
+            else:
+                st.warning("⚠️ Telegram secrets are not configured. Feedback wasn't sent.")
         else:
             st.error("Please enter some text before submitting.")
 
