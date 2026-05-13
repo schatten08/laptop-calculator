@@ -5,6 +5,10 @@ All notable changes to the Laptop Purchase Calculator will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-05-13
+### Changed
+* **Project Structure**: Refactored the project structure by moving `app.py` into a dedicated `src/` directory and cleaning up `__pycache__` artifacts to maintain a clean repository root.
+
 ## [1.5.0] - 2026-05-12
 ### Added
 * **New Equipment Model**: Added `Apple MacBook Air` to the tracking system. The core application logic was refactored to dynamically generate columns based on the the `MODELS` array length, rather than hardcoding exactly 3 models.
