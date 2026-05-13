@@ -5,6 +5,10 @@ All notable changes to the Laptop Purchase Calculator will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2026-05-13
+### Fixed
+* **Cloud Deployment**: Reverted `app.py` back to the repository root. Streamlit Cloud does not allow changing the main file path dynamically for existing apps without recreation, so the `src/` directory structure was rolled back to restore deployment functionality.
+
 ## [1.5.1] - 2026-05-13
 ### Changed
 * **Project Structure**: Refactored the project structure by moving `app.py` into a dedicated `src/` directory and cleaning up `__pycache__` artifacts to maintain a clean repository root.
